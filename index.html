@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Billion Quiz</title>
+
+        <style>@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(to bottom, #f9fafb 0%, #e0f2fe 100%);
+}
+
+/* === Welcome Page Styles === */
+.welcome-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Background logos */
+.bg-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0.25;
+  filter: blur(8px);
+  z-index: 0;
+}
+
+.bg-logo.top {
+  top: 5%;
+  width: 380px;
+}
+
+.bg-logo.bottom {
+  bottom: 5%;
+  width: 380px;
+}
+
+/* Foreground content */
+.welcome-container {
+  z-index: 1;
+  max-width: 400px;
+  padding: 20px;
+}
+
+.logo {
+  width: 100px;
+  margin-bottom: 24px;
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.title strong {
+  font-size: 2rem;
+  font-weight: 700;
+  display: block;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #4b5563;
+  margin-bottom: 36px;
+}
+
+/* Start Button */
+.start-btn {
+  background: #2563eb;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  padding: 16px 48px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+}
+
+.start-btn:hover {
+  background: #1d4ed8;
+  box-shadow: 0 8px 22px rgba(29, 78, 216, 0.45);
+}
+
+/* === Quiz Page Styles === */
+.quiz-screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: #3b82f6;
+  justify-content: center;
+  align-items: center;
+}
+
+.quiz-container {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  max-width: 90%;
+  padding: 20px;
+}
+
+.quiz-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 15px;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.quiz-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+}
+
+.quiz-title svg {
+  width: 20px;
+  height: 20px;
+}
+
+.question {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.option {
+  padding: 14px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.option:hover {
+  background: #e5e7eb;
+}
+
+.option.correct {
+  background: #bbf7d0;
+  border-color: #22c55e;
+}
+
+.option.wrong {
+  background: #fecaca;
+  border-color: #ef4444;
+}
+
+.option.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.next-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: #2563eb;
+  color: white;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.next-btn:hover {
+  background: #1d4ed8;
+}
+
+.result {
+  text-align: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 20px;
+}
+
+/* === Results Page Styles === */
+.results-screen {
+  display: none;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #0f6ef0 0%, #0b63dd 100%);
+  align-items: center;
+  justify-content: center;
+  padding: 28px;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.screen {
+  width: 420px;
+  max-width: 92vw;
+  height: 820px;
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bg-blob {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: blur(36px);
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.blob-top {
+  top: 28px;
+  width: 360px;
+  height: 200px;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 60%), linear-gradient(#1180f7, #0b63dd);
+  border-radius: 50%;
+  mix-blend-mode: overlay;
+}
+
+.blob-mid {
+  bottom: 140px;
+  width: 420px;
+  height: 300px;
+  background: radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0) 50%), linear-gradient(#0a5de0, #084fc6);
+  border-radius: 48%;
+  transform: translateX(-6%);
+}
+
+.silhouette {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 92px;
+  width: 420px;
+  height: 420px;
+  opacity: 0.08;
+  background: radial-gradient(circle at 50% 40%, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, 0.02) 30%), linear-gradient(180deg, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.03));
+  border-radius: 48%;
+  filter: blur(12px);
+  mix-blend-mode: multiply;
+}
+
+.header {
+  margin-top: 44px;
+  text-align: center;
+  z-index: 10;
+  width: 100%;
+  padding: 0 18px;
+}
+
+.top-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+  font-size: 22px;
+  margin-bottom: 10px;
+}
+
+.mini-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  font-weight: 700;
+  color: white;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+}
+
+.results-title {
+  font-size: 44px;
+  font-weight: 800;
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+}
+
+.sub {
+  font-size: 20px;
+  margin-top: 18px;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.card-wrap {
+  width: 90%;
+  max-width: 390px;
+  margin-top: 24px;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.card {
+  width: 100%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+  border-radius: 160px;
+  padding: 28px 28px;
+  box-shadow: 0 20px 40px rgba(7, 42, 103, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.02);
+  text-align: center;
+  color: white;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.earned {
+  font-size: 28px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.95);
+  line-height: 1;
+}
+
+.earned small {
+  display: block;
+  font-weight: 700;
+  font-size: 24px;
+  margin-top: 6px;
+  color: white;
+}
+
+.gem {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  margin-left: 8px;
+  vertical-align: middle;
+  transform: translateY(-1px);
+}
+
+.pill {
+  margin-top: 18px;
+  width: 92%;
+  max-width: 360px;
+  background: white;
+  color: #071525;
+  font-weight: 700;
+  font-size: 28px;
+  padding: 18px 22px;
+  border-radius: 40px;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(3, 20, 65, 0.18);
+}
+
+.pill:active {
+  transform: translateY(1px);
+}
+
+.footer {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  color: rgba(255, 255, 255, 0.95);
+  width: 100%;
+}
+
+.social-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.social-handle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.circle-x {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #000000;
+  display: inline-grid;
+  place-items: center;
+  font-size: 26px;
+  color: white;
+  font-weight: 800;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.circle-x:hover {
+  background: #1a1a1a;
+  transform: scale(1.05);
+}
+
+.x-logo {
+  width: 28px;
+  height: 28px;
+  fill: white;
+}
+
+.handle-text {
+  font-weight: 700;
+  font-size: 20px;
+  cursor: pointer;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.95);
+  transition: all 0.2s ease;
+}
+
+.handle-text:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.contact-text {
+  font-size: 16px;
+  font-weight: 500;
+  opacity: 0.9;
+  margin-top: 8px;
+}
+
+.top-left-floating {
+  position: absolute;
+  left: 18px;
+  top: 18px;
+  z-index: 12;
+}
+
+@media (max-width: 420px) {
+  .results-title {
+    font-size: 38px;
+  }
+
+  .pill {
+    font-size: 22px;
+    padding: 14px;
+  }
+
+  .header {
+    margin-top: 26px;
+  }
+
+  .footer {
+    bottom: 60px;
+  }
+
+  .contact-text {
+    font-size: 14px;
+    text-align: center;
+    padding: 0 10px;
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+}
+
+</style>
+</head>
+<body><!-- Welcome Screen --><div class="welcome-screen" id="welcome-screen"><!-- Faint blurred background logos --><img src="images/logo.png" alt="Background Logo" class="bg-logo top"><img src="images/logo.png" alt="Background Logo" class="bg-logo bottom"><div class="welcome-container"><!-- Main sharp logo --><img src="images/logo.png" alt="Billion Logo" class="logo"><!-- Text --><div class="title">Welcome to <br><strong>Billion Quiz</strong></div><div class="subtitle">Test your knowledge in 15 fun questions !</div><!-- Button --><button class="start-btn" id="start-btn">Start Quiz</button></div></div><!-- Quiz Screen --><div class="quiz-screen" id="quiz-screen"><div class="quiz-container" id="quiz-box"><div class="quiz-header"><div class="timer">⏰ <span id="time">6</span>s</div><div class="quiz-title"><svg viewBox="0 0 64 32" xmlns="http://www.w3.org/2000/svg"><path d="M16 0C7 0 0 7 0 16s7 16 16 16h32c9 0 16-7 16-16S57 0 48 0H16z" fill="#2563eb" /><ellipse cx="22" cy="16" rx="4" ry="8" fill="#fff" /><ellipse cx="42" cy="16" rx="4" ry="8" fill="#fff" /><ellipse cx="22" cy="16" rx="2" ry="5" fill="#000" /><ellipse cx="42" cy="16" rx="2" ry="5" fill="#000" /></svg>Billion Quiz </div><div id="question-number">Ques 1</div></div><div class="question" id="question">Loading question...</div><div class="options" id="options"></div><button class="next-btn" id="next-btn">Next Question</button></div></div><!-- Results Screen --><div class="results-screen" id="results-screen"><div class="screen" role="main" aria-label="Quiz result screen"><!-- decorative blurred silhouettes --><div class="bg-blob blob-top"></div><div class="silhouette" aria-hidden="true"></div><div class="bg-blob blob-mid"></div><!-- top-left small badge "00 Billion" --><div class="top-left-floating"><div style="display:flex;gap:10px;align-items:center;"><div class="mini-badge">00</div><div style="color:rgba(255,255,255,0.95); font-weight:700; font-size:18px;">Billion</div></div></div><!-- Header text --><div class="header"><div class="results-title">Quiz Completed !</div><div class="sub">You answered <strong style="font-weight:700" id="correct-answers">0</strong>out of <strong style="font-weight:700" id="total-questions">0</strong>correctly !</div></div><!-- middle card --><div class="card-wrap" aria-hidden="false"><div class="card"><div class="earned">You earned <span style="font-size:46px; font-weight:900; display:inline-block; margin-left:6px;" id="score-display">0</span><small>PowerPoints <!-- small gem svg --><svg class="gem" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#8be1ff" /><stop offset="1" stop-color="#6ad0ff" /></linearGradient></defs><path d="M2 8.5L12 2l10 6.5-4 9H6l-4-9z" fill="url(#g)" /><path d="M6 17l-2-4 8 6 8-6-2 4H6z" fill="rgba(255,255,255,0.06)" /></svg></small></div><button class="pill" id="return-btn">Return Home</button></div></div><!-- footer with X and handle --><div class="footer"><div class="social-section"><div class="social-handle"><div class="circle-x" id="x-logo"><svg class="x-logo" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" /></svg></div><a href="https://x.com/drmukty" class="handle-text" target="_blank">@DrMukty</a></div><div class="contact-text">Contact for further development and Support</div></div></div></div></div><script> // Quiz questions (60 questions)
+
+const allQuestions=[ {
+  q: "What is Billions in simple words?", options: ["A gaming company", "A Human + AI network", "A shopping app", "A bank"], answer: "A Human + AI network"
+}
+
+,
+{
+q: "Why was Billions created?", options: ["To sell crypto", "To stop identity fraud", "To replace the internet", "To build a phone"], answer: "To stop identity fraud"
+}
+
+,
+{
+q: "What does Billions prove online?", options: ["Who is funny", "Who is real", "Who is rich", "Who is popular"], answer: "Who is real"
+}
+
+,
+{
+q: "What is identity in Billions compared to?", options: ["Infrastructure", "Fashion", "Advertising", "Music"], answer: "Infrastructure"
+}
+
+,
+{
+q: "What is called the “new superpower” in the AI era?", options: ["Fast internet", "Free Wi-Fi", "Being verified", "Having more followers"], answer: "Being verified"
+}
+
+,
+{
+q: "What kind of internet does Billions want to build?", options: ["Free internet", "Trusted internet", "Social internet", "Offline internet"], answer: "Trusted internet"
+}
+
+,
+{
+q: "What is the main risk without identity verification?", options: ["AI becomes slow", "Every AI interaction is risky", "Phones stop working", "Humans get fewer jobs"], answer: "Every AI interaction is risky"
+}
+
+,
+{
+q: "What separates humans from bots in the new internet?", options: ["Ads", "Identity", "Passwords", "Emojis"], answer: "Identity"
+}
+
+,
+{
+q: "Does Billions need special hardware?", options: ["Yes", "No", "Sometimes", "Only for AI"], answer: "No"
+}
+
+,
+{
+q: "How much is lost yearly to identity fraud?", options: ["$10B", "$20B", "$30B", "$50B"], answer: "$30B"
+}
+
+,
+{
+q: "What causes most online fraud today?", options: ["Expensive phones", "Deepfakes, bots, fake accounts", "Lack of Wi-Fi", "Too many apps"], answer: "Deepfakes, bots, fake accounts"
+}
+
+,
+{
+q: "What’s the wrong way to fix identity issues?", options: ["More friction", "Verifiable data", "Privacy-first tools", "Open-source stacks"], answer: "More friction"
+}
+
+,
+{
+q: "What is the Billions solution?", options: ["Portable, verifiable data", "Bigger servers", "Free tokens", "Faster apps"], answer: "Portable, verifiable data"
+}
+
+,
+{
+q: "What can both humans and AI prove in Billions?", options: ["They are real and unique", "They are rich", "They are funny", "They are online 24/7"], answer: "They are real and unique"
+}
+
+,
+{
+q: "What does the Deep Trust framework give AI agents?", options: ["Free cloud", "Verifiable identity", "Unlimited memory", "Speed boost"], answer: "Verifiable identity"
+}
+
+,
+{
+q: "Who can Billions help audit AI agents?", options: ["Teachers", "Businesses", "Musicians", "Celebrities"], answer: "Businesses"
+}
+
+,
+{
+q: "What makes Billions different from many apps?", options: ["It keeps private data safe", "It shows your chats", "It sells ads", "It uses special phones"], answer: "It keeps private data safe"
+}
+
+,
+{
+q: "How many users joined Billions in 5 months?", options: ["500K", "1.4M", "2M", "3M"], answer: "1.4M"
+}
+
+,
+{
+q: "When did Billions hit 1 million users?", options: ["May 2025", "June 2025", "July 2025", "August 2025"], answer: "June 2025"
+}
+
+,
+{
+q: "Which investor backed Billions?", options: ["Polychain", "Google", "Apple", "Tesla"], answer: "Polychain"
+}
+
+,
+{
+q: "Which venture group is a supporter?", options: ["CB Ventures", "SoftBank", "Sequoia", "a16z"], answer: "CB Ventures"
+}
+
+,
+{
+q: "Which blockchain project backs Billions?", options: ["Solana", "Polygon", "Avalanche", "Cosmos"], answer: "Polygon"
+}
+
+,
+{
+q: "Who is part of the Billions core team?", options: ["Mark Zuckerberg", "Sandeep Nailwal", "Vitalik Buterin", "Elon Musk"], answer: "Sandeep Nailwal"
+}
+
+,
+{
+q: "What does Billions say separates people from bots?", options: ["Identity", "Passwords", "Firewalls", "Money"], answer: "Identity"
+}
+
+,
+{
+q: "What powers the next phase of the digital world, according to Billions?", options: ["Privacy, proof, and participation", "Ads and clicks", "Crypto only", "Free Wi-Fi"], answer: "Privacy, proof, and participation"
+}
+
+,
+{
+q: "What is Billions unlocking with its system?", options: ["The internet of value", "Social media", "Free phones", "Cloud music"], answer: "The internet of value"
+}
+
+,
+{
+q: "What does Billions compare verified humans to?", options: ["Superheroes", "Robots", "Kings", "Hackers"], answer: "Superheroes"
+}
+
+,
+{
+q: "What phrase does Billions use to motivate users?", options: ["Let’s save the internet", "Let’s play the game", "Let’s buy tokens", "Let’s delete AI"], answer: "Let’s save the internet"
+}
+
+,
+{
+q: "What is the third phase in the roadmap?", options: ["Global Trust Economy", "Free Wi-Fi", "Universal tokens", "New social media"], answer: "Global Trust Economy"
+}
+
+,
+{
+q: "What is Billions’ long-term goal?", options: ["Stop AI", "Build a Global Trust Economy", "Close the internet", "End Web3"], answer: "Build a Global Trust Economy"
+}
+
+,
+{
+q: "What does Billions call the internet they want to unlock?", options: ["Internet of fun", "Internet of value", "Internet of ads", "Internet of games"], answer: "Internet of value"
+}
+
+,
+{
+q: "How many projects use Circom?", options: ["500+", "1,000+", "9,000+", "20,000+"], answer: "9,000+"
+}
+
+,
+{
+q: "Which design principle does Billions follow?", options: ["Privacy-first", "Ads-first", "Gaming-first", "Speed-first"], answer: "Privacy-first"
+}
+
+,
+{
+q: "Who tested Billions’ infrastructure?", options: ["Only students", "Global institutions", "Only gamers", "Celebrities"], answer: "Global institutions"
+}
+
+,
+{
+q: "What makes AI agents risky today?", options: ["They are too fast", "They have no identity", "They are too small", "They are cheap"], answer: "They have no identity"
+}
+
+,
+{
+q: "Without identity, what do agents lack?", options: ["Speed", "Reputation", "Storage", "Energy"], answer: "Reputation"
+}
+
+,
+{
+q: "What 3 things does Billions give AI agents?", options: ["Games, memes, speed", "Real identity, reputation, privacy-preserving proof", "Cloud, ads, storage", "Wi-Fi, passwords, money"], answer: "Real identity, reputation, privacy-preserving proof"
+}
+
+,
+{
+q: "What information stays private in Billions?", options: ["Secure identity wallet", "Public endorsements", "Social media", "Bank accounts"], answer: "Secure identity wallet"
+}
+
+,
+{
+q: "What does Deep Trust solve?", options: ["Crisis of trust in AI", "Expensive phones", "Global warming", "Password resets"], answer: "Crisis of trust in AI"
+}
+
+,
+{
+q: "What is one phrase Billions uses to describe itself?", options: ["Human & AI Network", "Global Gaming Hub", "Music Streaming App", "Shopping Network"], answer: "Human & AI Network"
+}
+
+,
+{
+q: "What happens when humans and AI can trust each other?", options: ["Safer collaboration", "Less internet", "Slower apps", "Fewer users"], answer: "Safer collaboration"
+}
+
+,
+{
+q: "What did Billions call verified identity?", options: ["A toy", "A superpower", "A problem", "A coin"], answer: "A superpower"
+}
+
+,
+{
+q: "What symbol did Billions use to describe verification?", options: ["🦸🏻‍♂️", "🐶", "🏝️", "🐱"], answer: "🦸🏻‍♂️"
+}
+
+,
+{
+q: "What message does Billions give verified users?", options: ["Grab your mask, superhuman", "Stay offline", "Don’t use AI", "Forget passwords"], answer: "Grab your mask, superhuman"
+}
+
+,
+{
+q: "When did Billions announce $30M funding?", options: ["July 31, 2025", "June 21, 2025", "August 4, 2025", "May 1, 2025"], answer: "July 31, 2025"
+}
+
+,
+{
+q: "Who were some backers of the $30M round?", options: ["Polychain, CB Ventures, Polygon", "Apple, Tesla, Amazon", "TikTok, Spotify, Netflix", "Binance, Coinbase, OpenSea"], answer: "Polychain, CB Ventures, Polygon"
+}
+
+,
+{
+q: "What did investors believe was essential?", options: ["Verifiable identity", "More ads", "Free Wi-Fi", "Faster phones"], answer: "Verifiable identity"
+}
+
+,
+{
+q: "How much did Sequoia say the AI trust gap could grow to?", options: ["$600B", "$200M", "$1M", "$1B"], answer: "$600B"
+}
+
+,
+{
+q: "Why is the trust gap so costly?", options: ["Value can’t move without trust", "Phones get slower", "Ads don’t load", "Games crash"], answer: "Value can’t move without trust"
+}
+
+,
+{
+q: "What phrase describes Billions’ long-term mission?", options: ["Unlock the internet of value", "Sell coins", "End apps", "Stop AI"], answer: "Unlock the internet of value"
+}
+
+,
+{
+q: "What does Billions verify for humans?", options: ["Age only", "That you’re real and unique", "Your shopping history", "Your music taste"], answer: "That you’re real and unique"
+}
+
+,
+{
+q: "How does Billions keep data private?", options: ["Locks it in a safe", "Uses Zero-Knowledge Proofs", "Deletes everything", "Puts it on social media"], answer: "Uses Zero-Knowledge Proofs"
+}
+
+,
+{
+q: "What is Billions’ main role in the AI era?", options: ["Powering ads", "Proving who’s real", "Selling tokens", "Replacing phones"], answer: "Proving who’s real"
+}
+
+,
+{
+q: "How many verified users did Billions report after 5 months?", options: ["1.4M", "500K", "3M", "100K"], answer: "1.4M"
+}
+
+,
+{
+q: "What will reputation in Billions allow humans & AI to build?", options: ["Trust", "Passwords", "Ads", "Likes"], answer: "Trust"
+}
+
+,
+{
+q: "What is Circom known as today?", options: ["A gaming engine", "Standard for privacy-preserving verification", "Music software", "Storage system"], answer: "Standard for privacy-preserving verification"
+}
+
+,
+{
+q: "What is the main benefit of Zero-Knowledge Proofs?", options: ["They prove something is true without revealing details", "They make apps faster", "They reduce storage needs", "They increase internet speed"], answer: "They prove something is true without revealing details"
+}
+
+,
+{
+q: "What problem does Billions solve for AI companies?", options: ["Trust and verification of AI agents", "Cost of computing power", "Data storage limitations", "User interface design"], answer: "Trust and verification of AI agents"
+}
+
+,
+{
+q: "What is the key innovation in Billions' approach?", options: ["Combining human and AI verification in one network", "Creating a new social media platform", "Developing a new cryptocurrency", "Building faster smartphones"], answer: "Combining human and AI verification in one network"
+}
+
+];
+
+// DOM elements
+const welcomeScreen=document.getElementById('welcome-screen');
+const quizScreen=document.getElementById('quiz-screen');
+const resultsScreen=document.getElementById('results-screen');
+const startBtn=document.getElementById('start-btn');
+const nextBtn=document.getElementById('next-btn');
+const returnBtn=document.getElementById('return-btn');
+const xLogo=document.getElementById('x-logo');
+
+// Quiz state variables
+let currentQuestionIndex=0;
+let score=0;
+let timeLeft=6;
+let timer;
+let selected=false;
+let quizQuestions=[];
+
+// Quiz elements
+const timeDisplay=document.getElementById("time");
+const questionBox=document.getElementById("question");
+const optionsBox=document.getElementById("options");
+const questionNumber=document.getElementById("question-number");
+const quizBox=document.getElementById("quiz-box");
+
+// Results elements
+const correctAnswersDisplay=document.getElementById("correct-answers");
+const totalQuestionsDisplay=document.getElementById("total-questions");
+const scoreDisplay=document.getElementById("score-display");
+
+// Event listeners
+startBtn.addEventListener('click', startQuiz);
+nextBtn.addEventListener('click', nextQuestion);
+returnBtn.addEventListener('click', returnHome);
+
+xLogo.addEventListener('click', ()=> {
+    window.open('https://x.com/drmukty', '_blank');
+  });
+
+// Functions
+function startQuiz() {
+  // Select 15 random questions from the pool of 60
+  quizQuestions=getRandomQuestions(allQuestions, 15);
+
+  welcomeScreen.style.display='none';
+  quizScreen.style.display='flex';
+  currentQuestionIndex=0;
+  score=0;
+  loadQuestion();
+}
+
+function getRandomQuestions(questions, count) {
+  // Create a copy of the questions array to avoid modifying the original
+  const shuffled=[...questions].sort(()=> 0.5 - Math.random());
+  return shuffled.slice(0, count);
+}
+
+function showResults() {
+  quizScreen.style.display='none';
+  resultsScreen.style.display='flex';
+
+  // Update results
+  correctAnswersDisplay.textContent=score / 10;
+  totalQuestionsDisplay.textContent=quizQuestions.length;
+  scoreDisplay.textContent=score;
+}
+
+function returnHome() {
+  resultsScreen.style.display='none';
+  welcomeScreen.style.display='flex';
+}
+
+function startTimer() {
+  timeLeft=6;
+  timeDisplay.innerText=timeLeft;
+
+  timer=setInterval(()=> {
+      timeLeft--;
+      timeDisplay.innerText=timeLeft;
+
+      if (timeLeft <=0) {
+        clearInterval(timer);
+        disableOptions(false); // timeout: no correct shown, zero points
+      }
+    }
+
+    , 1000);
+}
+
+function loadQuestion() {
+  selected=false;
+  const current=quizQuestions[currentQuestionIndex];
+
+  questionNumber.innerText =`Ques ${ currentQuestionIndex+1 }`;
+
+  ;
+  questionBox.innerText=current.q;
+
+  optionsBox.innerHTML="";
+
+  current.options.forEach(opt=> {
+      const div=document.createElement("div");
+      div.classList.add("option");
+      div.innerText=opt;
+      div.onclick=()=> selectOption(div, opt, current.answer);
+      optionsBox.appendChild(div);
+    });
+
+  startTimer();
+  }
+
+function disableOptions(showAnswer) {
+  const options=document.querySelectorAll(".option");
+
+  options.forEach(opt=> {
+      opt.classList.add("disabled");
+
+      if (showAnswer && opt.innerText===quizQuestions[currentQuestionIndex].answer) {
+        opt.classList.add("correct");
+      }
+    });
+}
+
+function selectOption(element, answer, correctAnswer) {
+  if (selected) return;
+  selected=true;
+  clearInterval(timer);
+
+  if (answer===correctAnswer) {
+    element.classList.add("correct");
+    score+=10;
+  }
+
+  else {
+    element.classList.add("wrong");
+    disableOptions(true); // show correct answer
+  }
+}
+
+function nextQuestion() {
+  clearInterval(timer);
+  currentQuestionIndex++;
+
+  if (currentQuestionIndex < quizQuestions.length) {
+    loadQuestion();
+  }
+
+  else {
+    showResults();
+  }
+}
+
+</script>
+</body>
+</html>
